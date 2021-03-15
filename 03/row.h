@@ -16,5 +16,11 @@ public:
     int32_t operator[](size_t idx) const;
     int32_t& operator[](size_t idx);
 
+    const int32_t* begin() const;
+    const int32_t* end() const;
+
+    int32_t* begin();
+    int32_t* end();
+
     friend std::ostream& operator<<(std::ostream&, const TRow&);
 };
