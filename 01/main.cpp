@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cassert>
 
-void Test() {
+void TestLinearAllocator() {
     {
         TLinearAllocator allocator;
         allocator.makeAllocator(50);
@@ -33,10 +33,10 @@ void Test() {
         allocator.makeAllocator(11);
         assert(allocator.alloc(11) != nullptr);
     }
-    std::cerr << "Test is OK" << std::endl;
+    std::cerr << "TestLinearAllocator is OK" << std::endl;
 }
 
 int main() {
-    Test();
+    TestLinearAllocator();
     return 0;
 }

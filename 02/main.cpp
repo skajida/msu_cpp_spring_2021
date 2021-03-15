@@ -7,25 +7,10 @@
 template <typename T>
 void assertVector(const std::vector<T> &generated, const std::vector<T> &expected) {
     assert(generated.size() == expected.size());
-    for (size_t i = 0; i < expected.size(); ++i) {
-        assert(generated[i] == expected[i]);
-    }
+    assert(std::equal(generated.begin(), generated.end(), expected.begin()));
 }
 
-void Test() {
-    {                                       // empty input
-        TTokenParser parser;
-        std::istringstream input("\t\n\n   \t  ");
-        std::ostringstream output;
-        parser.setDigitTokenCallback([&output](uint32_t digitToken) {
-            output << digitToken;
-        });
-        parser.setStringTokenCallback([&output](std::string stringToken) {
-            output << stringToken;
-        });
-
-        assert(output.str() == "");
-    }
+void TestTokenParser() {
     {                                       // +14 theoretically accepted, but task doesnt mean that
         TTokenParser parser;                // -15 especially, so isdigit() is digestible
         std::istringstream input("              \
@@ -61,10 +46,24 @@ void Test() {
         assertVector(integer_found_tokens, integer_expected_tokens);
         assertVector(string_found_tokens, string_expected_tokens);
     }
-    std::cerr << "Test is OK" << std::endl;
+    {                                       // empty input
+        TTokenParser parser;
+        std::istringstream input("\t\n\n   \t  ");
+        std::ostringstream output;
+        parser.setDigitTokenCallback([&output](uint32_t digitToken) {
+            output << digitToken;
+        });
+        parser.setStringTokenCallback([&output](std::string stringToken) {
+            output << stringToken;
+        });
+        parser.parse(input);
+
+        assert(output.str() == "");
+    }
+    std::cerr << "TestTokenParser is OK" << std::endl;
 }
 
 int main() {
-    Test();
+    TestTokenParser();
     return 0;
 }

@@ -4,7 +4,7 @@
 #include <sstream>
 #include <cassert>
 
-void Test() {
+void TestMatrix() {
     {
         const std::pair<size_t, size_t> shape = std::make_pair(5, 3);
         const TMatrix matrix(shape.first, shape.second);
@@ -38,10 +38,10 @@ void Test() {
         oss << matrix;
         assert(oss.str() == "4 4 4 4\n4 4 4 4\n4 4 4 5\n4 4 4 4");
     }
-    std::cerr << "Test is OK" << std::endl;
+    std::cerr << "TestMatrix is OK" << std::endl;
 }
 
 int main() {
-    Test();
+    TestMatrix();
     return 0;
 }
