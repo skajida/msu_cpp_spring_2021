@@ -28,6 +28,7 @@ void TestMatrix() {
         const std::pair<size_t, size_t> shape = std::make_pair(4, 4);
         TMatrix matrix(shape.first, shape.second);
         std::fill(matrix.begin(), matrix.end(), 2);
+        matrix[0][0] = 1;
         const TMatrix sum_matrix = matrix + matrix;
         matrix *= 2;
         assert(matrix == sum_matrix);
@@ -36,7 +37,7 @@ void TestMatrix() {
 
         std::ostringstream oss;
         oss << matrix;
-        assert(oss.str() == "4 4 4 4\n4 4 4 4\n4 4 4 5\n4 4 4 4");
+        assert(oss.str() == "2 4 4 4\n4 4 4 4\n4 4 4 5\n4 4 4 4");
     }
     std::cerr << "TestMatrix is OK" << std::endl;
 }

@@ -5,7 +5,7 @@
 
 TMatrix::TMatrix(size_t rows, size_t columns)
     : shape(rows, columns)
-    , ptr(new int32_t[rows * columns])
+    , ptr(new int32_t[rows * columns]())
 {
     if (!rows || !columns) {
         shape = std::make_pair(0, 0);
@@ -51,11 +51,13 @@ TMatrix& TMatrix::operator*=(int32_t multiplier) {
 }
 
 TMatrix TMatrix::operator+(const TMatrix &operand) const {
+    if (shape != operand.shape) {
+        throw std::invalid_argument("matrix operands have different shapes");
+    }
     TMatrix ans(*this);
-    for (size_t i = 0; i < ans.shape.first; ++i) {
-        for (size_t j = 0; j < ans.shape.second; ++j) {
-            ans.ptr[i * ans.shape.second + j] += operand.ptr[i * operand.shape.second + j];
-        }
+    auto inputIt = operand.begin();
+    for (auto it = ans.begin(); it != ans.end(); ++it) {
+        *it += *inputIt++;
     }
     return ans;
 }
