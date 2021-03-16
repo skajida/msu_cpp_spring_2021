@@ -20,7 +20,7 @@ void TLinearAllocator::makeAllocator(size_t maxSize) {
 }
 
 char* TLinearAllocator::alloc(size_t size_) {
-    if (offset + size_ <= size) {
+    if (size_ && offset + size_ <= size) {
         offset += size_;
         return ptr + offset - size_;
     }

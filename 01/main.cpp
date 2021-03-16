@@ -33,6 +33,12 @@ void TestLinearAllocator() {
         allocator.makeAllocator(11);
         assert(allocator.alloc(11) != nullptr);
     }
+    {
+        TLinearAllocator allocator;
+        allocator.makeAllocator(10);
+        assert(allocator.alloc(0) == nullptr);
+        assert(allocator.alloc(6) != nullptr);
+    }
     std::cerr << "TestLinearAllocator is OK" << std::endl;
 }
 
