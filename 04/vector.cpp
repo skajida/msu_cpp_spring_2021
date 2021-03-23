@@ -1,224 +1,224 @@
 #include "vector.h"
 
-TVector::TVector() : _capacity(), _size(), ptr(nullptr) {}
+TVector::TVector() : Capacity(), Size(), Ptr(nullptr) {}
 
 TVector::TVector(std::initializer_list<uint32_t> brace_enclosed_list)
-    : _capacity(brace_enclosed_list.size())
-    , _size(brace_enclosed_list.size())
-    , ptr(new uint32_t[_capacity])
+    : Capacity(brace_enclosed_list.size())
+    , Size(brace_enclosed_list.size())
+    , Ptr(new uint32_t[Capacity])
 {
     std::copy(brace_enclosed_list.begin(), brace_enclosed_list.end(), begin());
 }
 
 TVector::TVector(TVectorView view)
-    : _capacity(view.size())
-    , _size(view.size())
-    , ptr(new uint32_t[_capacity])
+    : Capacity(view.size())
+    , Size(view.size())
+    , Ptr(new uint32_t[Capacity])
 {
     std::copy(view.begin(), view.end(), begin());
 }
 
 TVector::TVector(const TVector &obj)
-    : _capacity(obj._capacity)
-    , _size(obj._size)
-    , ptr(new uint32_t[_capacity])
+    : Capacity(obj.Capacity)
+    , Size(obj.Size)
+    , Ptr(new uint32_t[Capacity])
 {
     std::copy(obj.begin(), obj.end(), begin());
 }
 
 TVector::TVector(TVector &&obj)
-    : _capacity(obj._capacity)
-    , _size(obj._size)
-    , ptr(obj.ptr)
+    : Capacity(obj.Capacity)
+    , Size(obj.Size)
+    , Ptr(obj.Ptr)
 {
-    obj.ptr = nullptr;
-    obj._capacity = obj._size = 0;
+    obj.Ptr = nullptr;
+    obj.Capacity = obj.Size = 0;
 }
 
 TVector::~TVector() {
-    delete[] ptr;
+    delete[] Ptr;
 }
 
 bool TVector::empty() const {
-    return !_size;
+    return !Size;
 }
 
 size_t TVector::capacity() const {
-    return _capacity;
+    return Capacity;
 }
 
 size_t TVector::size() const {
-    return _size;
+    return Size;
 }
 
 void TVector::push_back(uint32_t val) {
-    if (_size == _capacity) {
-        _capacity = _capacity ? _capacity << 1 : 1;
-        uint32_t *tmp = new uint32_t[_capacity];        // not safe
+    if (Size == Capacity) {
+        Capacity = Capacity ? Capacity << 1 : 1;
+        uint32_t *tmp = new uint32_t[Capacity];         // not safe
         std::copy(begin(), end(), tmp);
-        delete[] ptr;
-        ptr = tmp;
+        delete[] Ptr;
+        Ptr = tmp;
     }
-    ptr[_size++] = val;
+    Ptr[Size++] = val;
 }
 
 void TVector::pop_back() {
-    --_size;                                             // pop_back() from empty stl vector is UB
+    --Size;                                             // pop_back() from empty stl vector is UB
 }
 
 void TVector::clear() {
-    _size = 0;
+    Size = 0;
 }
 
 void TVector::reserve(size_t cap) {
-    if (cap > _capacity) {
+    if (cap > Capacity) {
         uint32_t *tmp = new uint32_t[cap];              // not safe
         std::copy(begin(), end(), tmp);
-        delete[] ptr;
-        ptr = tmp;
-        _capacity = cap;
+        delete[] Ptr;
+        Ptr = tmp;
+        Capacity = cap;
     }
 }
 
 void TVector::resize(size_t s) {
-    if (_size < s) {
+    if (Size < s) {
         reserve(s);
         std::fill(end(), begin() + s, 0);
     }
-    _size = s;
+    Size = s;
 }
 
 TVector& TVector::operator=(std::initializer_list<uint32_t> brace_enclosed_list) {
     if (capacity() < brace_enclosed_list.size()) {
-        delete[] ptr;
-        _capacity = brace_enclosed_list.size();
-        ptr = new uint32_t[_capacity];                  // not safe
+        delete[] Ptr;
+        Capacity = brace_enclosed_list.size();
+        Ptr = new uint32_t[Capacity];                   // not safe
     }
-    _size = brace_enclosed_list.size();
+    Size = brace_enclosed_list.size();
     std::copy(brace_enclosed_list.begin(), brace_enclosed_list.end(), begin());
     return *this;
 }
 
 TVector& TVector::operator=(TVectorView view) {
     if (capacity() < view.size()) {
-        delete[] ptr;
-        _capacity = view.size();
-        ptr = new uint32_t[_capacity];                  // not safe
+        delete[] Ptr;
+        Capacity = view.size();
+        Ptr = new uint32_t[Capacity];                   // not safe
     }
-    _size = view.size();
+    Size = view.size();
     std::copy(view.begin(), view.end(), begin());
     return *this;
 }
 
 TVector& TVector::operator=(const TVector &obj) {
     if (capacity() < obj.capacity()) {
-        delete[] ptr;
-        _capacity = obj._capacity;
-        ptr = new uint32_t[_capacity];                  // not safe
+        delete[] Ptr;
+        Capacity = obj.Capacity;
+        Ptr = new uint32_t[Capacity];                   // not safe
     }
-    _size = obj.size();
+    Size = obj.size();
     std::copy(obj.begin(), obj.end(), begin());
     return *this;
 }
 
 TVector& TVector::operator=(TVector &&obj) {
-    delete[] ptr;
-    _capacity = obj.capacity();
-    _size = obj.size();
-    ptr = obj.begin();
-    obj.ptr = nullptr;
-    obj._capacity = obj._size = 0;
+    delete[] Ptr;
+    Capacity = obj.capacity();
+    Size = obj.size();
+    Ptr = obj.begin();
+    obj.Ptr = nullptr;
+    obj.Capacity = obj.Size = 0;
     return *this;
 }
 
 uint32_t TVector::back() const {
-    return ptr[_size - 1];                              // back() from empty stl vector is UB
+    return Ptr[Size - 1];                                // back() from empty stl vector is UB
 }
 
 uint32_t& TVector::back() {
-    return ptr[_size - 1];                              // back() from empty stl vector is UB
+    return Ptr[Size - 1];                                // back() from empty stl vector is UB
 }
 
 uint32_t TVector::operator[](size_t idx) const {
-    return ptr[idx];
+    return Ptr[idx];
 }
 
 uint32_t& TVector::operator[](size_t idx) {
-    return ptr[idx];
+    return Ptr[idx];
 }
 
 const uint32_t* TVector::begin() const {
-    return ptr;
+    return Ptr;
 }
 
 const uint32_t* TVector::end() const {
-    return ptr + _size;
+    return Ptr + Size;
 }
 
 uint32_t* TVector::begin() {
-    return ptr;
+    return Ptr;
 }
 
 uint32_t* TVector::end() {
-    return ptr + _size;
+    return Ptr + Size;
 }
 
 std::reverse_iterator<const uint32_t*> TVector::rbegin() const {
-    return std::make_reverse_iterator(ptr + _size);
+    return std::make_reverse_iterator(Ptr + Size);
 }
 
 std::reverse_iterator<const uint32_t*> TVector::rend() const {
-    return std::make_reverse_iterator(ptr);
+    return std::make_reverse_iterator(Ptr);
 }
 
 std::reverse_iterator<uint32_t*> TVector::rbegin() {
-    return std::make_reverse_iterator(ptr + _size);
+    return std::make_reverse_iterator(Ptr + Size);
 }
 
 std::reverse_iterator<uint32_t*> TVector::rend() {
-    return std::make_reverse_iterator(ptr);
+    return std::make_reverse_iterator(Ptr);
 }
 
-TVector::TVectorView::TVectorView(size_t s, const uint32_t *p) : _size(s), ptr(p) {}
+TVector::TVectorView::TVectorView(size_t s, const uint32_t *p) : Size(s), Ptr(p) {}
 
-TVector::TVectorView::TVectorView(const TVector &obj) : _size(obj.size()), ptr(obj.begin()) {}
+TVector::TVectorView::TVectorView(const TVector &obj) : Size(obj.size()), Ptr(obj.begin()) {}
 
-TVector::TVectorView::TVectorView(const TVectorView &obj) : _size(obj.size()), ptr(obj.begin()) {}
+TVector::TVectorView::TVectorView(const TVectorView &obj) : Size(obj.size()), Ptr(obj.begin()) {}
 
-TVector::TVectorView::TVectorView(TVectorView &&obj) : _size(obj.size()), ptr(obj.begin()) {
-    obj._size = 0;
-    obj.ptr = nullptr;
+TVector::TVectorView::TVectorView(TVectorView &&obj) : Size(obj.size()), Ptr(obj.begin()) {
+    obj.Size = 0;
+    obj.Ptr = nullptr;
 }
 
 bool TVector::TVectorView::empty() const {
-    return !_size;
+    return !Size;
 }
 
 size_t TVector::TVectorView::size() const {
-    return _size;
+    return Size;
 }
 
 TVector::TVectorView& TVector::TVectorView::operator=(TVectorView &&obj) {
-    _size = obj.size();
-    ptr = obj.begin();
-    obj._size = 0;
-    obj.ptr = nullptr;
+    Size = obj.size();
+    Ptr = obj.begin();
+    obj.Size = 0;
+    obj.Ptr = nullptr;
     return *this;
 }
 
 uint32_t TVector::TVectorView::operator[](size_t idx) const {
     if (idx < size()) {
-        return ptr[idx];
+        return Ptr[idx];
     }
     return 0;
 }
 
 const uint32_t* TVector::TVectorView::begin() const {
-    return ptr;
+    return Ptr;
 }
 
 const uint32_t* TVector::TVectorView::end() const {
-    return ptr + size();
+    return Ptr + size();
 }
 
 std::pair<TVector::TVectorView, TVector::TVectorView> TVector::TVectorView::split() const {

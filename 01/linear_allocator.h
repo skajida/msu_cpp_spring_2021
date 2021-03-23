@@ -15,6 +15,6 @@ public:
     TLinearAllocator& operator=(const TLinearAllocator&) = delete;
 
     void makeAllocator(size_t maxSize);
-    char* alloc(size_t size_);
+    char* alloc(size_t s);
     void reset();
 };

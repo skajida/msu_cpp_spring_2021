@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cassert>
 
-void TestLinearAllocator() {
+void TestBorderConditions() {
     {
         TLinearAllocator allocator;
         allocator.makeAllocator(50);
@@ -26,6 +26,9 @@ void TestLinearAllocator() {
         assert(allocator.alloc(10) != nullptr);
         assert(allocator.alloc(40) != nullptr);
     }
+}
+
+void TestReallocation() {
     {
         TLinearAllocator allocator;
         allocator.makeAllocator(10);
@@ -33,12 +36,21 @@ void TestLinearAllocator() {
         allocator.makeAllocator(11);
         assert(allocator.alloc(11) != nullptr);
     }
+}
+
+void TestDanglingPointer() {
     {
         TLinearAllocator allocator;
         allocator.makeAllocator(10);
         assert(allocator.alloc(0) == nullptr);
         assert(allocator.alloc(6) != nullptr);
     }
+}
+
+void TestLinearAllocator() {
+    TestBorderConditions();
+    TestReallocation();
+    TestDanglingPointer();
     std::cerr << "TestLinearAllocator is OK" << std::endl;
 }
 

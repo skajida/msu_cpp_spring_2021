@@ -19,10 +19,10 @@ void TLinearAllocator::makeAllocator(size_t maxSize) {
     ptr = new char[maxSize];
 }
 
-char* TLinearAllocator::alloc(size_t size_) {
-    if (size_ && offset + size_ <= size) {
-        offset += size_;
-        return ptr + offset - size_;
+char* TLinearAllocator::alloc(size_t s) {
+    if (s && offset + s <= size) {
+        offset += s;
+        return ptr + offset - s;
     }
     return nullptr;
 }

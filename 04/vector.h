@@ -4,14 +4,14 @@
 
 class TVector {
 private:
-    size_t _capacity;
-    size_t _size;
-    uint32_t *ptr;
+    size_t Capacity;
+    size_t Size;
+    uint32_t *Ptr;
 public:
     class TVectorView {
     private:
-        size_t _size;
-        const uint32_t *ptr;
+        size_t Size;
+        const uint32_t *Ptr;
     public:
         TVectorView(size_t, const uint32_t*);
         TVectorView(const TVector&);
