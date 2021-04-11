@@ -6,7 +6,7 @@
 TTokenParser::TTokenParser()
     : startCallback([] {})
     , endCallback([] {})
-    , digitTokenCallback([](uint32_t) {})
+    , digitTokenCallback([](uint64_t) {})
     , stringTokenCallback([](std::string) {})
 {
     //
@@ -20,7 +20,7 @@ void TTokenParser::setEndCallback(std::function<void()> func) {
     endCallback = func;
 }
 
-void TTokenParser::setDigitTokenCallback(std::function<void(uint32_t)> func) {
+void TTokenParser::setDigitTokenCallback(std::function<void(uint64_t)> func) {
     digitTokenCallback = func;
 }
 
@@ -33,7 +33,11 @@ void TTokenParser::parse(std::istream &is) const {
     std::string str;
     while (is >> str) {
         if (std::all_of(str.begin(), str.end(), isdigit)) {
-            digitTokenCallback(std::stoul(str));
+            try {
+                digitTokenCallback(std::stoull(str));
+            } catch (const std::out_of_range &e) {
+                stringTokenCallback(std::move(str));
+            }
         } else {
             stringTokenCallback(std::move(str));
         }
