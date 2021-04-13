@@ -1,6 +1,7 @@
 #include "token_parser.h"
 
 #include <sstream>
+#include <array>
 #include <vector>
 #include <cassert>
 
@@ -82,6 +83,43 @@ void TestTokenParser() {
 
         assertVector(integer_found_tokens, { 18446744073709551615ull });
         assertVector(string_found_tokens, { "18446744073709551616" });
+    }
+    {                                       // alone symbol input
+        TTokenParser parser;
+        std::array<std::istringstream, 4> inputs = {
+            std::istringstream("1"),
+            std::istringstream("a"),
+            std::istringstream("-"),
+            std::istringstream("")
+        };
+        std::vector<std::vector<uint64_t>> integer_found_tokens(inputs.size());
+        std::vector<std::vector<std::string>> string_found_tokens(inputs.size());
+        for (size_t i = 0; i < inputs.size(); ++i) {
+            parser.setDigitTokenCallback([&integer_found_tokens, i](uint64_t digitToken) {
+                integer_found_tokens[i].push_back(digitToken);
+            });
+            parser.setStringTokenCallback([&string_found_tokens, i](std::string stringToken) {
+                string_found_tokens[i].push_back(std::move(stringToken));
+            });
+            parser.parse(inputs[i]);
+        }
+        std::vector<std::vector<uint64_t>> integer_expected_tokens = { {1}, {}, {}, {} };
+        std::vector<std::vector<std::string>> string_expected_tokens = { {}, {"a"}, {"-"}, {} };
+
+        for (size_t i = 0; i < inputs.size(); ++i) {
+            assertVector(integer_found_tokens[i], integer_expected_tokens[i]);
+            assertVector(string_found_tokens[i], string_expected_tokens[i]);
+        }
+    }
+    {                                       // nullptr callbacks
+        TTokenParser parser;
+        std::istringstream input("some kind of input");
+        parser.setStartCallback(nullptr);
+        parser.setEndCallback(nullptr);
+        parser.setDigitTokenCallback(nullptr);
+        parser.setStringTokenCallback(nullptr);
+        parser.parse(input);
+
     }
     std::cerr << "TestTokenParser is OK" << std::endl;
 }

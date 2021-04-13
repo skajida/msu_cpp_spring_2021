@@ -13,18 +13,22 @@ TTokenParser::TTokenParser()
 }
 
 void TTokenParser::setStartCallback(std::function<void()> func) {
+    func = func == nullptr ? [] {} : func;
     startCallback = func;
 }
 
 void TTokenParser::setEndCallback(std::function<void()> func) {
+    func = func == nullptr ? [] {} : func;
     endCallback = func;
 }
 
 void TTokenParser::setDigitTokenCallback(std::function<void(uint64_t)> func) {
+    func = func == nullptr ? [](uint64_t) {} : func;
     digitTokenCallback = func;
 }
 
 void TTokenParser::setStringTokenCallback(std::function<void(std::string)> func) {
+    func = func == nullptr ? [](std::string) {} : func;
     stringTokenCallback = func;
 }
 
