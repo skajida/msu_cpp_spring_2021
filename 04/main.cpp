@@ -3,6 +3,7 @@
 
 #include <random>
 #include <sstream>
+#include <array>
 #include <vector>
 #include <cassert>
 
@@ -82,16 +83,22 @@ void checkOperation(const std::vector<std::pair<std::string, std::string>> &oper
     for (const auto &[lhs, rhs] : operands) {
         std::pair<TBigInt, TBigInt> numbers = std::make_pair(TBigInt(lhs), TBigInt(rhs));
         TBigInt product;
-        if (op == '+') {
+        switch (op) {
+        case '+':
             product = numbers.first + numbers.second;
-        } else if (op == '-') {
+            break;
+        case '-':
             product = numbers.first - numbers.second;
-        } else if (op == '*') {
+            break;
+        case '*':
             product = numbers.first * numbers.second;
+            break;
+        default:
+            break;
         }
-        std::ostringstream oss;
-        oss << product;
-        assert(oss.str() == runCommand(lhs + " " + op + " " + rhs));
+        std::ostringstream os;
+        os << product;
+        assert(os.str() == runCommand(lhs + " " + op + " " + rhs));
     }
 }
 
@@ -106,10 +113,17 @@ std::string generateRandomNumber(size_t length) {
     return res;
 }
 
+std::string_view removePlusPrefix(std::string_view str) {
+    if (str.size() && str.front() == '+') {
+        str.remove_prefix(1);
+    }
+    return str;
+}
+
 void TestBigInt() {
-    constexpr size_t operandsQuantity = 16;
-    constexpr size_t randomNumberLength = 128;
-    {
+    {                                       // comparing output with python script
+        constexpr size_t operandsQuantity = 16;
+        constexpr size_t randomNumberLength = 128;
         std::vector<std::pair<std::string, std::string>> terms(operandsQuantity);
         for (auto &[lhs, rhs] : terms) {
             lhs = generateRandomNumber(randomNumberLength);
@@ -118,6 +132,55 @@ void TestBigInt() {
         checkOperation(terms, '+');
         checkOperation(terms, '-');
         checkOperation(terms, '*');
+    }
+    {                                       // io operators
+        std::array<std::istringstream, 4> inputs = {
+            std::istringstream("3901381239408349345771209432747289178329484533713"),
+            std::istringstream("+4093458238234294"),
+            std::istringstream("-15"),
+            std::istringstream("0")
+        };
+        TBigInt n;
+        for (std::istringstream &input : inputs) {
+            std::ostringstream output;
+            input >> n;
+            output << n;
+            assert(removePlusPrefix(input.str()) == output.str());
+        }
+    }
+    {                                       // unary minus
+        std::vector<std::string> numbers = {
+            "-34573947923842911239897459",
+            "-1",
+            "-0"
+        };
+        std::vector<std::string_view> numbersPos;
+        numbersPos.reserve(numbers.size());
+        for (const std::string &it : numbers) {
+            numbersPos.push_back(std::string_view(it.begin() + 1, it.end()));
+        }
+        for (size_t i = 0; i < numbers.size(); ++i) {
+            TBigInt neg(numbers[i]), pos(numbersPos[i]);
+            assert(neg == -pos);
+        }
+    }
+    {                                       // int32_t support
+        TBigInt n = 17;
+        assert(n == 17);
+        assert(n + 100 == 117);
+        assert(n - 100 == -83);
+        assert(n * 100 == 1700);
+    }
+    {                                       // test from example
+        std::ostringstream os;
+        TBigInt a = 1;
+        TBigInt b("123456789012345678901234567890");
+        TBigInt c = a * b + 2;
+        TBigInt d;
+        d = std::move(c);
+        a = d + b;
+        os << a;
+        assert(os.str() == "246913578024691357802469135782");
     }
     std::cerr << "TestBigInt is OK" << std::endl;
 }

@@ -42,7 +42,7 @@ TBigInt::TBigInt(uint32_t val) : neg(val & signBit), data() {
     }
 }
 
-TBigInt::TBigInt(std::string str) : neg(), data() {
+TBigInt::TBigInt(std::string_view str) : neg(), data() {
     std::string_view stripped_str = strip(str);
     readBigInt(stripped_str);
 }
@@ -105,7 +105,9 @@ bool TBigInt::operator==(const TBigInt &obj) const {
 
 TBigInt TBigInt::operator-() const {
     TBigInt res = *this;
-    res.neg = !neg;
+    if (res != 0) {
+        res.neg = !neg;
+    }
     return res;
 }
 

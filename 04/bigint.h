@@ -20,7 +20,7 @@ public:
 
     TBigInt();
     TBigInt(uint32_t);
-    explicit TBigInt(std::string);
+    explicit TBigInt(std::string_view);
     TBigInt(const TBigInt&);
     TBigInt(TBigInt&&);
 
