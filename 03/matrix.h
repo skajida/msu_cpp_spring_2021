@@ -9,6 +9,7 @@ private:
     std::pair<size_t, size_t> shape;
     int32_t *ptr;
 public:
+    explicit TMatrix(std::pair<size_t, size_t>);
     TMatrix(size_t, size_t);
     TMatrix(const TMatrix&);
     ~TMatrix();

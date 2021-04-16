@@ -3,6 +3,15 @@
 #include <algorithm>
 #include <stdexcept>
 
+TMatrix::TMatrix(std::pair<size_t, size_t> Shape)
+    : shape(Shape)
+    , ptr(new int32_t[shape.first * shape.second])
+{
+    if (!shape.first || !shape.second) {
+        shape = std::make_pair(0, 0);
+    }
+}
+
 TMatrix::TMatrix(size_t rows, size_t columns)
     : shape(rows, columns)
     , ptr(new int32_t[rows * columns]())
