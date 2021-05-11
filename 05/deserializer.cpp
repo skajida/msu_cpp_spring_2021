@@ -1,15 +1,19 @@
 #include "deserializer.h"
 
 EError TDeserializer::process(uint64_t &obj) {
-    if ((is >> obj).ignore(1)) {
-        return EError::NoError;
+    if (is >> obj) {
+        if (int32_t next = is.get(); next == EOF || next == Separator) {
+            return EError::NoError;
+        }
     }
     return EError::CorruptedArchive;
 }
 
 EError TDeserializer::process(bool &obj) {
-    if ((is >> std::boolalpha >> obj >> std::noboolalpha).ignore(1)) {
-        return EError::NoError;
+    if (is >> std::boolalpha >> obj >> std::noboolalpha) {
+        if (int32_t next = is.get(); next == EOF || next == Separator) {
+            return EError::NoError;
+        }
     }
     return EError::CorruptedArchive;
 }
