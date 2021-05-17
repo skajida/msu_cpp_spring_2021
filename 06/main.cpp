@@ -45,6 +45,7 @@ void TestFormat() {
     assert(test("thiranger", "key error: 'string'", "thiran{string}", "ger") == EResult::RE);
     assert(test("thiranger", "key error: ' 0'", "thiran{ 0}", "ger") == EResult::RE);
     assert(test("thiranger", "key error: '0 '", "thiran{0 }", "ger") == EResult::RE);
+    assert(test("thiranger", "key error: '0str'", "thiran{0str}", "ger") == EResult::RE);
     assert(test("thiranger", "key error: '348975342384721239872431092934902'", "thiran{348975342384721239872431092934902}", "ger") == EResult::RE);
 
     std::cerr << "TestFormat is OK" << std::endl;
