@@ -192,6 +192,27 @@ void TestComplex() {
         EError status = deserializer.load(objTarget);
         assert(status == EError::NoError);
     }
+    {
+        TData5 objTarget;
+        std::istringstream input("false");
+        TDeserializer deserializer(input);
+        EError status = deserializer.load(objTarget);
+        assert(status == EError::CorruptedArchive);
+    }
+    {
+        TData5 objTarget;
+        std::istringstream input("47str");
+        TDeserializer deserializer(input);
+        EError status = deserializer.load(objTarget);
+        assert(status == EError::CorruptedArchive);
+    }
+    {
+        TData3 objTarget;
+        std::istringstream input("false 47str 47");
+        TDeserializer deserializer(input);
+        EError status = deserializer.load(objTarget);
+        assert(status == EError::CorruptedArchive);
+    }
     std::cerr << "TestComplex is OK" << std::endl;
 }
 
