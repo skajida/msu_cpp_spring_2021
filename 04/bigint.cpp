@@ -89,7 +89,7 @@ std::strong_ordering TBigInt::operator<=>(const TBigInt &obj) const {
     const auto less = neg ? std::strong_ordering::greater : std::strong_ordering::less;
     const auto greater = neg ? std::strong_ordering::less : std::strong_ordering::greater;
     if (data.size() != obj.data.size()) {
-            return data.size() < obj.data.size() ? less : greater;
+        return data.size() < obj.data.size() ? less : greater;
     } else if (std::lexicographical_compare(data.rbegin(), data.rend(), obj.data.rbegin(), obj.data.rend())) {
         return less;
     }

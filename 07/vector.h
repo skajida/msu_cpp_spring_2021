@@ -34,11 +34,11 @@ public:
     size_type capacity() const noexcept;
     size_type size() const noexcept;
 
-    void push_back(value_type val);
-    void pop_back() noexcept;
-
     template <typename... ArgsT>
     void emplace_back(ArgsT&&... ctor_params);
+
+    void push_back(value_type val);
+    void pop_back() noexcept;
 
     void clear() noexcept;
     void reserve(size_type);
@@ -74,9 +74,7 @@ TVector<T, Allocator>::TVector(std::initializer_list<value_type> brace_enclosed_
     , Size(brace_enclosed_list.size())
     , Data(allocator.allocate(brace_enclosed_list.size()))
 {
-    for (auto it = brace_enclosed_list.begin(); it != brace_enclosed_list.end(); ++it) {
-        std::construct_at(&Data[std::distance(brace_enclosed_list.begin(), it)], *it);
-    }
+    std::uninitialized_copy(brace_enclosed_list.begin(), brace_enclosed_list.end(), Data);
 }
 
 template <typename T, class Allocator>
@@ -85,9 +83,7 @@ TVector<T, Allocator>::TVector(const TVector &obj)
     , Size(obj.size())
     , Data(allocator.allocate(obj.size()))
 {
-    for (auto it = obj.begin(); it != obj.end(); ++it) {
-        std::construct_at(&Data[std::distance(obj.begin(), it)], *it);
-    }
+    std::uninitialized_copy(obj.begin(), obj.end(), Data);
 }
 
 template <typename T, class Allocator>
@@ -121,20 +117,6 @@ TVector<T, Allocator>::size_type TVector<T, Allocator>::size() const noexcept {
 }
 
 template <typename T, class Allocator>
-void TVector<T, Allocator>::push_back(value_type val) {
-    if (size() == capacity()) {
-        Capacity = Capacity ? Capacity << 1 : 1;
-        Data = allocator.reallocate(Data, Size, Capacity);
-    }
-    std::construct_at(&Data[Size++], std::move(val));
-}
-
-template <typename T, class Allocator>
-void TVector<T, Allocator>::pop_back() noexcept {
-    std::destroy_at(&Data[--Size]);
-}
-
-template <typename T, class Allocator>
 template <typename... ArgsT>
 void TVector<T, Allocator>::emplace_back(ArgsT&&... ctor_params) {
     if (size() == capacity()) {
@@ -145,11 +127,18 @@ void TVector<T, Allocator>::emplace_back(ArgsT&&... ctor_params) {
 }
 
 template <typename T, class Allocator>
+void TVector<T, Allocator>::push_back(value_type val) {
+    emplace_back(std::move(val));
+}
+
+template <typename T, class Allocator>
+void TVector<T, Allocator>::pop_back() noexcept {
+    std::destroy_at(&Data[--Size]);
+}
+
+template <typename T, class Allocator>
 void TVector<T, Allocator>::clear() noexcept {
-    for (auto it = begin(); it != end(); ++it) {
-        std::destroy_at(static_cast<pointer>(it));
-    }
-    Size = 0;
+    resize(0);
 }
 
 template <typename T, class Allocator>
@@ -164,9 +153,9 @@ template <typename T, class Allocator>
 void TVector<T, Allocator>::resize(size_type size) {
     if (this->size() < size) {
         reserve(size);
-        for (auto it = end(); it != begin() + size; ++it) {
-            std::construct_at(static_cast<pointer>(it));
-        }
+        std::uninitialized_default_construct(end(), begin() + size);
+    } else {
+        std::destroy(begin() + size, end());
     }
     Size = size;
 }
@@ -181,9 +170,7 @@ TVector<T, Allocator>& TVector<T, Allocator>::operator=(std::initializer_list<va
         clear();
     }
     Size = brace_enclosed_list.size();
-    for (auto it = brace_enclosed_list.begin(); it != brace_enclosed_list.end(); ++it) {
-        std::construct_at(&Data[std::distance(brace_enclosed_list.begin(), it)], *it);
-    }
+    std::uninitialized_copy(brace_enclosed_list.begin(), brace_enclosed_list.end(), Data);
     return *this;
 }
 
@@ -197,9 +184,7 @@ TVector<T, Allocator>& TVector<T, Allocator>::operator=(const TVector &obj) {
         clear();
     }
     Size = obj.size();
-    for (auto it = obj.begin(); it != obj.end(); ++it) {
-        std::construct_at(&Data[std::distance(obj.begin(), it)], *it);
-    }
+    std::uninitialized_copy(obj.begin(), obj.end(), Data);
     return *this;
 }
 

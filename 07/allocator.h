@@ -25,17 +25,13 @@ TAllocator<T>::pointer TAllocator<T>::allocate(size_type size) const {
 template <typename T>
 TAllocator<T>::pointer TAllocator<T>::reallocate(pointer ptr, size_type old_size, size_type new_size) const {
     pointer tmp = allocate(new_size);
-    for (size_type i = 0; i < std::min(old_size, new_size); ++i) {
-        std::construct_at(&tmp[i], ptr[i]);
-    }
+    std::uninitialized_move_n(tmp, std::min(old_size, new_size), ptr);
     deallocate(ptr, old_size);
     return tmp;
 }
 
 template <typename T>
 void TAllocator<T>::deallocate(pointer ptr, size_type size) const {
-    for (size_type i = 0; i < size; ++i) {
-        std::destroy_at(&ptr[i]);
-    }
+    std::destroy_n(ptr, size);
     free(ptr);
 }
