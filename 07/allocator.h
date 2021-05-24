@@ -25,7 +25,7 @@ TAllocator<T>::pointer TAllocator<T>::allocate(size_type size) const {
 template <typename T>
 TAllocator<T>::pointer TAllocator<T>::reallocate(pointer ptr, size_type old_size, size_type new_size) const {
     pointer tmp = allocate(new_size);
-    std::uninitialized_move_n(tmp, std::min(old_size, new_size), ptr);
+    std::uninitialized_move_n(ptr, std::min(old_size, new_size), tmp);
     deallocate(ptr, old_size);
     return tmp;
 }

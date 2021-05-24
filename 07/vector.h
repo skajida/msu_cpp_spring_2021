@@ -25,6 +25,7 @@ private:
     pointer Data;
 public:
     TVector();
+    explicit TVector(size_t);
     TVector(std::initializer_list<value_type>);
     TVector(const TVector&);
     TVector(TVector&&);
@@ -69,12 +70,21 @@ template <typename T, class Allocator>
 TVector<T, Allocator>::TVector() : Capacity() , Size() , Data(nullptr) {}
 
 template <typename T, class Allocator>
+TVector<T, Allocator>::TVector(size_t size)
+    : Capacity(size)
+    , Size(size)
+    , Data(allocator.allocate(size))
+{
+    std::uninitialized_default_construct(begin(), end());
+}
+
+template <typename T, class Allocator>
 TVector<T, Allocator>::TVector(std::initializer_list<value_type> brace_enclosed_list)
     : Capacity(brace_enclosed_list.size())
     , Size(brace_enclosed_list.size())
     , Data(allocator.allocate(brace_enclosed_list.size()))
 {
-    std::uninitialized_copy(brace_enclosed_list.begin(), brace_enclosed_list.end(), Data);
+    std::uninitialized_copy(brace_enclosed_list.begin(), brace_enclosed_list.end(), begin());
 }
 
 template <typename T, class Allocator>
@@ -83,7 +93,7 @@ TVector<T, Allocator>::TVector(const TVector &obj)
     , Size(obj.size())
     , Data(allocator.allocate(obj.size()))
 {
-    std::uninitialized_copy(obj.begin(), obj.end(), Data);
+    std::uninitialized_copy(obj.begin(), obj.end(), begin());
 }
 
 template <typename T, class Allocator>
@@ -128,7 +138,11 @@ void TVector<T, Allocator>::emplace_back(ArgsT&&... ctor_params) {
 
 template <typename T, class Allocator>
 void TVector<T, Allocator>::push_back(value_type val) {
-    emplace_back(std::move(val));
+    if (size() == capacity()) {
+        Capacity = Capacity ? Capacity << 1 : 1;
+        Data = allocator.reallocate(Data, Size, Capacity);
+    }
+    std::construct_at(&Data[Size++], val);
 }
 
 template <typename T, class Allocator>
@@ -170,7 +184,7 @@ TVector<T, Allocator>& TVector<T, Allocator>::operator=(std::initializer_list<va
         clear();
     }
     Size = brace_enclosed_list.size();
-    std::uninitialized_copy(brace_enclosed_list.begin(), brace_enclosed_list.end(), Data);
+    std::uninitialized_copy(brace_enclosed_list.begin(), brace_enclosed_list.end(), begin());
     return *this;
 }
 
@@ -184,7 +198,7 @@ TVector<T, Allocator>& TVector<T, Allocator>::operator=(const TVector &obj) {
         clear();
     }
     Size = obj.size();
-    std::uninitialized_copy(obj.begin(), obj.end(), Data);
+    std::uninitialized_copy(obj.begin(), obj.end(), begin());
     return *this;
 }
 

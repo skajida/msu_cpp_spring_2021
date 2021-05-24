@@ -1,5 +1,6 @@
 #include "vector.h"
 
+#include <random>
 #include <iostream>
 #include <vector>
 #include <cassert>
@@ -55,7 +56,7 @@ void TestVector() {
         assert(logs[0] == logs[1]);
     }
     S::dump();                                          // cleared dtor counter
-    {                                                   // mirrored vectors filled with no copy
+    {                                                   // mirrored vectors filled with no copies
         TLog logs[2];
 
         TVector<S> myVector;
@@ -70,6 +71,27 @@ void TestVector() {
         stlVector.emplace_back(1);
         stlVector.emplace_back(0);
         stlVector.emplace_back(-1);
+        logs[1] = S::dump();
+
+        assert(myVector.capacity() == stlVector.capacity());
+        assert(myVector.size() == stlVector.size());
+        assert(std::equal(myVector.rbegin(), myVector.rend(), stlVector.begin()));
+        assert(logs[0] == logs[1]);
+    }
+    S::dump();                                          // cleared dtor counter
+    {                                                   // mirrored vectors filled with many copies
+        TLog logs[2];
+
+        TVector<S> myVector;
+        myVector.push_back(-1);
+        myVector.push_back(0);
+        myVector.push_back(1);
+        logs[0] = S::dump();
+
+        std::vector<S> stlVector;
+        stlVector.push_back(1);
+        stlVector.push_back(0);
+        stlVector.push_back(-1);
         logs[1] = S::dump();
 
         assert(myVector.capacity() == stlVector.capacity());
@@ -103,6 +125,25 @@ void TestVector() {
         assert(myVector.size() == myVector.capacity());
         myVector.pop_back();
         assert(myVector.size() + 1 == myVector.capacity());
+    }
+    {                                                   // operator[]
+        constexpr size_t size = 100'000;
+        std::vector<int32_t> stlVector(size);
+
+        std::mt19937 generator(time(nullptr));
+        for (int32_t &it : stlVector) {
+            it = generator();
+        }
+
+        TVector<int32_t> myMutableVector(size);
+        for (size_t i = 0; i < size; ++i) {
+            myMutableVector[i] = stlVector[i];
+        }
+
+        const TVector<int32_t> myImmutableVector(myMutableVector);
+        for (size_t i = 0; i < size; ++i) {
+            assert(stlVector[i] == myImmutableVector[i]);
+        }
     }
     std::cerr << "TestVector is OK" << std::endl;
 }
